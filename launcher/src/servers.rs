@@ -934,6 +934,17 @@ pub struct Player {
     pub ping: Option<u64>,
 }
 
+impl Player {
+    /// Permissions belong to the connected UUID, not a case-insensitive display name.
+    pub fn is_operator(&self, operators: &[(String, String)]) -> bool {
+        !self.uuid.is_empty()
+            && operators.iter().any(|(_, uuid)| {
+                uuid.replace('-', "")
+                    .eq_ignore_ascii_case(&self.uuid.replace('-', ""))
+            })
+    }
+}
+
 /// What the supervisor reports.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct Status {

@@ -1742,7 +1742,11 @@ impl Launcher {
         let t = self.theme;
         let running = status.running();
         let idle = self.servers.busy.is_none();
-        let ops = servers::names(dir, "ops.json");
+        let operator_entries = servers::entries(dir, "ops.json");
+        let ops: Vec<String> = operator_entries
+            .iter()
+            .map(|(name, _)| name.clone())
+            .collect();
         let whitelist = servers::entries(dir, "whitelist.json");
         let banned = servers::names(dir, "banned-players.json");
         let is_op = |n: &str| ops.iter().any(|o| o.eq_ignore_ascii_case(n));
@@ -1751,7 +1755,7 @@ impl Launcher {
         // Online now.
         let mut online = div().flex().flex_col().border_t_1().border_color(t.rule);
         for (i, p) in status.players.clone().into_iter().enumerate() {
-            let op = is_op(&p.name);
+            let op = p.is_operator(&operator_entries);
             let (n1, n2, n3) = (p.name.clone(), p.name.clone(), p.name.clone());
             let actions = div()
                 .flex()

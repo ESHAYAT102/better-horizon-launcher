@@ -942,6 +942,10 @@ impl Game<'_> {
     /// service, else (offline) the offline player. None, told to the console:
     /// no such player.
     fn resolve(&self, name: &str) -> Option<NameAndId> {
+        // Offline names are case-sensitive identities; the cache may hold an older UUID.
+        if let Some(user) = self.online_player(name) {
+            return Some(user);
+        }
         let found = USER_CACHE.lock().unwrap().as_mut().and_then(|cache| {
             cache.get_by_name(name, |lower| {
                 let found = profiles::find_by_name(&profiles::discovery_url(), lower);

@@ -277,3 +277,15 @@ fn deleting_refuses_an_unrecognized_folder_and_keeps_files_on_trash_failure() {
     assert!(root.join("server.toml").exists());
     fs::remove_dir_all(root).unwrap();
 }
+#[test]
+fn operator_status_uses_the_connected_uuid_not_the_display_name() {
+    let player = super::Player {
+        name: "ESH".into(),
+        uuid: "a4aadef1-de2d-3abb-a57a-7ae7ce1b450e".into(),
+        ..Default::default()
+    };
+    assert!(!player.is_operator(&[("esh".into(), "f359bfbd-a085-4ddc-b829-45ee69da61ea".into())]));
+    assert!(player.is_operator(&[("ESH".into(), player.uuid.clone())]));
+    assert!(player.is_operator(&[("ESH".into(), player.uuid.replace('-', "").to_uppercase())]));
+    assert!(!super::Player::default().is_operator(&[(String::new(), String::new())]));
+}
