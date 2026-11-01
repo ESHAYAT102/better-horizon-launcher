@@ -1,9 +1,13 @@
 [package]
 name = "horizon-launcher"
-version = "0.2.0"
+version = "0.2.27"
 edition = "2021"
 license = "MIT"
-description = "Downloads, prepares and starts Horizon builds"
+description = "Better Horizon: offline Horizon launcher with Better Visuals"
+
+[[bin]]
+name = "better-horizon"
+path = "src/main.rs"
 
 [workspace]
 

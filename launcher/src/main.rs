@@ -3283,7 +3283,6 @@ impl Launcher {
                     ))
                     .child(self.accent_row(cx))
                     .child(self.home_background_row(cx))
-                    .child(self.language_row(cx))
                     .child(self.while_playing_row(n + 3, cx))
                     .child(index_row(
                         n + 3,
@@ -4581,7 +4580,7 @@ fn main() {
                     titlebar: Some(titlebar::options()),
                     #[cfg(target_os = "linux")]
                     window_decorations: Some(gpui::WindowDecorations::Client),
-                    app_id: Some("horizon-launcher".into()),
+                    app_id: Some("better-horizon".into()),
                     ..Default::default()
                 },
                 |window, cx| cx.new(|cx| Launcher::new(window, cx)),

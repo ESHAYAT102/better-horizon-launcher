@@ -73,9 +73,9 @@ pub const LAUNCHER_ASSET: Option<&str> = Some("horizon-launcher-windows-x64.zip"
 pub const LAUNCHER_ASSET: Option<&str> = None;
 
 const LAUNCHER_BINARY: &str = if cfg!(windows) {
-    "horizon-launcher.exe"
+    "better-horizon.exe"
 } else {
-    "horizon-launcher"
+    "better-horizon"
 };
 
 pub(crate) const CLIENT: &str = if cfg!(windows) {
@@ -311,8 +311,9 @@ pub fn releases() -> Result<Vec<Release>, String> {
 /// The game's builds in `list`, newest first. A Nightly is listed under the version it installs as
 /// ([`crate::nightly::version_of`]); only the current one (`nightly`) is an update.
 pub(crate) fn game_releases(list: &serde_json::Value) -> Vec<Release> {
+    // Better Horizon: no Nightly builds are offered or installed.
     let mut out = parse_releases(list, ASSET, |tag| {
-        is_game_tag(tag) || horizon_release_sign::is_nightly(tag)
+        is_game_tag(tag) && !horizon_release_sign::is_nightly(tag)
     });
     for r in &mut out {
         if horizon_release_sign::is_nightly(&r.tag) {
@@ -2427,15 +2428,17 @@ pub fn exe_path() -> &'static Path {
     EXE.get_or_init(|| std::env::current_exe().unwrap_or_else(|_| PathBuf::from(LAUNCHER_BINARY)))
 }
 
-/// Development builds and `HORIZON_LAUNCHER_NO_SELF_UPDATE` never replace themselves.
+/// Better Horizon is version-locked: it never replaces itself with an upstream update.
 pub fn self_update_allowed() -> bool {
-    !cfg!(debug_assertions) && std::env::var_os("HORIZON_LAUNCHER_NO_SELF_UPDATE").is_none()
+    false
 }
 
-/// The version in `horizon-launcher --version`'s output (`horizon-launcher 0.1.5`).
+/// The version in `better-horizon --version`'s output (`better-horizon 0.1.5`).
 fn parse_version_output(out: &str) -> Option<&str> {
-    out.trim()
-        .strip_prefix("horizon-launcher ")
+    let out = out.trim();
+    ["better-horizon ", "horizon-launcher "]
+        .into_iter()
+        .find_map(|p| out.strip_prefix(p))
         .map(str::trim)
         .filter(|v| !v.is_empty())
 }
@@ -2982,8 +2985,12 @@ pub struct Settings {
     /// offline names play without an account that owns the game, in the window only
     /// (`account::Accounts::play_as_with`, `account::launch_for_game`). Never a download: the game still
     /// comes from the player's own install. Off by default, and absent from the file while off.
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    #[serde(default = "default_true", skip_serializing_if = "std::ops::Not::not")]
     pub dev_offline: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 impl Settings {

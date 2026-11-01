@@ -14,7 +14,7 @@ use std::process::Command;
 
 #[derive(Parser)]
 #[command(
-    name = "horizon-launcher",
+    name = "better-horizon",
     version = backend::VERSION,
     about = "Installs, prepares and starts Horizon. Without a subcommand, opens the window."
 )]
